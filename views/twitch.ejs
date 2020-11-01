@@ -1,0 +1,54 @@
+<% if (!user) { %>
+    <%- include('include/twitchhead'); %>
+    <div class="ui active centered inline loader" id="loadMore"></div>
+<% } else { %>
+    <%- include('include/twitchhead'); %>
+    <body style="background-color: black;">
+        <div class="ui fluid container" id="wrapper">
+            <div id="scroller">
+                <% for (const key in userPhoto) { %>
+                    <a onclick="updateCurrentStreamer('<%= userPhoto[key].display_name %>')"><img id="timelinePhoto" class="ui circular centered small image" alt="Profile Pic" src=<%= userPhoto[key].profile_image_url %>></a>
+                <% } %>
+            </div>
+        </div>
+        <div class="ui fluid container" style="float: right; width:95%;">
+            <div id="twitch-embed"></div>
+        </div>
+        <script src= "https://player.twitch.tv/js/embed/v1.js"></script>
+        <script>
+            const customTitlebar = require('custom-electron-titlebar');
+            new customTitlebar.Titlebar({
+                backgroundColor: customTitlebar.Color.fromHex('#5c5c5c'),
+                menu: false,
+                titleHorizontalAlignment: 'left',
+                unfocusEffect: false
+            });
+
+            var twitchSearch = 'monstercat'
+            $("#target").click(function () {
+                twitchSearch = $('#twitchInput').val();
+                if (twitchSearch === ""){
+                    return
+                }
+                player.setChannel(twitchSearch);
+            })
+
+            function updateCurrentStreamer(newVal){
+                player.setChannel(newVal)
+            }
+
+            const { ipcRenderer } = require('electron');
+            $(document).ready(function () {
+                ipcRenderer.send('onTwitchPageLoad')
+            })
+
+            var options = {
+                width: '100%',
+                height: '92.2%',
+                channel: twitchSearch,
+            };
+            var player = new Twitch.Player("twitch-embed", options);
+            player.setVolume(0.0);
+        </script>
+    </body>
+<% } %>

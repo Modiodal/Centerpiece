@@ -1,0 +1,139 @@
+<%- include('include/head'); %>
+<body style="background-color: #242424;">
+    <div class="ui center aligned container">
+        <div class="ui grid" style="margin-right: -125px">
+            <div class="six wide column" style="margin-left: 55px">
+                <a class="ui blue inverted card" href="/login/twitter">
+                    <div class="content">
+                        <div class="header"><i class="inverted twitter icon"></i>Twitter</div>
+                        <div class="meta">
+                            <span class="category">Sign in</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="six wide column">
+                <a class="ui purple inverted card" href="/login/twitch">
+                    <div class="content">
+                        <div class="header"><i class="inverted twitch icon"></i>Twitch</div>
+                        <div class="meta">
+                            <span class="category">Sign in</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="ui fluid container">
+        <div class="ui grid" style="margin-left: 10px; margin-right: 10px">
+            <div class="ten wide column">
+                <div class="ui container">
+                    <div class="ui inverted attached segment" style="height: 385px; overflow: auto; border-top-left-radius: 5px; border-top-right-radius: 5px">
+                        <div class="items">
+                            <% for (const key in articles) { %>
+                                <div class="ui fluid raised inverted horizontal card">
+                                    <a class="image" target="_blank" href=<%= articles[key].url %>>
+                                        <% try { %>
+                                            <img src=<%= articles[key].multimedia[3].url %>>
+                                        <% } catch { %>
+                                            <img alt="Article Photo">
+                                        <% } %>
+                                    </a>
+                                    <div class="content">
+                                        <div class="header" style="font-size: 14px"><%= articles[key].title %></div>
+                                        <div class="meta">
+                                            <p style="color: gray"> - <%= new Date(articles[key].updated_date).toLocaleString() %></p>
+
+                                        </div>
+                                        <div class="description">
+                                            <p style="color: gray"><%= articles[key].byline %></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                    <div class="ui center aligned vertically fitted inverted bottom attached segment" style="margin-bottom: 0px">
+                        <a style="color: #5c5c5c" href="https://developer.nytimes.com/" target="_blank">Powered by NYTimes API</a>
+                    </div>
+                </div>
+            </div>
+            <div class="six wide column" style="padding-top: 15px">
+                <div class="ui horizontal inverted card">
+                    <div class="content">
+                        <h2 id="weatherName" class="header"><%= weather.name %></h2><img class="header right floated" id="weatherIcon" src=<%= 'http://openweathermap.org/img/wn/' + weather.weather[0].icon + '@2x.png' %> />
+                        <div class="meta">
+                            <span id="weatherTemp" class="date">Temp: <%= weather.main.temp %> &deg</span>
+                            <div id="weatherConitions" style="margin-top: 35px">
+                                Conditions:  <%= weather.weather[0].description %> <br> Feels like:  <%= weather.main.feels_like %> &deg <br> Humidity:  <%= weather.main.humidity %>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="extra center aligned content" style="margin: 0px; padding: 8px">
+                        <div class="ui inverted transparent icon input">
+                            <input id="weatherInput" type="text" placeholder="City or Zip Code...">
+                        </div>
+                        <i id="target" class="inverted circular search link icon"></i>
+                    </div>
+                </div>
+
+                <div class="cryptoTable ui inverted horizontal card" style="overflow: auto; height: 172px">
+                    <table class="ui inverted table">
+                        <thead style="background-color: #2b2b2b">
+                            <tr>
+                                <th>Coin</th>
+                                <th>Price</th>
+                                <th>24h Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for (const key in crypto) { %>
+                                <tr data-id=<%= key %>>
+                                    <td style="width: 135px"><%= crypto[key].name %></td>
+                                    <% if (crypto[key].quote.USD.price < 1){ %>
+                                        <td><%= crypto[key].quote.USD.price.toFixed(4) %></td>
+                                    <% } else { %>
+                                        <td><%= crypto[key].quote.USD.price.toFixed(2) %></td>
+                                    <% } %>
+                                    <td><%= crypto[key].quote.USD.percent_change_24h.toFixed(2) %> %</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const customTitlebar = require('custom-electron-titlebar');
+        new customTitlebar.Titlebar({
+            backgroundColor: customTitlebar.Color.fromHex('#5c5c5c'),
+            menu: false,
+            titleHorizontalAlignment: 'left',
+            unfocusEffect: false,
+        });
+
+
+        $("#target").click(function () {
+            weatherSearch = $('#weatherInput').val();
+            console.log(weatherSearch)
+            document.getElementById('weatherInput').value = ''
+            if (weatherSearch === ""){
+                return
+            }
+            fetch('/home/weather', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ userInput: weatherSearch }),
+            }).then(response => response.json())
+            .then(data => {
+                document.getElementById('weatherName').innerHTML = data.name
+                document.getElementById('weatherIcon').src = 'http://openweathermap.org/img/wn/' + data.weather[0].icon + '@2x.png'
+                document.getElementById('weatherTemp').innerHTML = 'Temp: ' + data.main.temp + '&deg'
+                document.getElementById('weatherConitions').innerHTML =
+                    'Conditions: ' + data.weather[0].description + '<br> Feels like: ' + data.main.feels_like + '&deg' + '<br> Humidity: ' + data.main.humidity
+            })
+        })
+
+    </script>
+</body>

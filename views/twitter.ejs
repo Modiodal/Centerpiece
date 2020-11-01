@@ -1,0 +1,216 @@
+<% if (!user) { %>
+    <%- include('include/twitterhead'); %>
+    <div class="ui active centered inline loader" id="loadMore"></div>
+<% } else { %>
+<%- include('include/twitterhead'); %>
+
+<script>
+    const customTitlebar = require('custom-electron-titlebar');
+    new customTitlebar.Titlebar({
+        backgroundColor: customTitlebar.Color.fromHex('#5c5c5c'),
+        menu: false,
+        titleHorizontalAlignment: 'left',
+        unfocusEffect: false
+    });
+</script>
+<body style="background-color: #242424">
+    <div class="mainTweets ui container" style="padding: 75px 75px 0px 75px; scroll-margin-top: 5rem;">
+        <form action="/tweet" method="POST">
+            <div class="ui inverted vertically fitted segment" style="margin-top: 25px; padding-top: 5px">
+                <div class="ui items">
+                    <div class="item">
+                        <img id="timelinePhoto" style="margin-left: -13px" class="ui circular left floated image" alt="Test" src="<%= user._json.profile_image_url %>">
+                        <div class="content">
+                            <div class="ui form">
+                                <div class="field">
+                                    <textarea style="color: white" class="transparent" type="text" id="content" name="content" placeholder="What's happening?" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <div class="extra">
+                                <button type="submit" class="ui tiny inverted blue basic right floated button">Tweet</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div>
+            <a id="backtoTop" onclick='window.scrollTo({top: 0, behavior: "smooth"});'>
+                <i class="angle double up large icon"></i>
+            </a>
+        </div>
+        <div id="tweets"></div>
+        <div class="ui active centered inline loader" id="loadMore"></div>
+    </div>
+    <script type="text/javascript">
+        /* Calling our getTwitterTimeline function to get more tweets
+         after scrolling to bottom of page, also setting timeout
+         */
+        var scrolled = false;
+        $(window).scroll(function() {
+            if($(window).scrollTop() + $(window).height() >= $(document).height()) {
+                if (!scrolled){
+                    scrolled = true;
+                    getTwitterTimeline(id)
+                    setTimeout(function () {scrolled = false}, 5000)
+                }
+            }
+        });
+
+        var id;
+        function getTwitterTimeline(setId){
+            fetch('/twitter/home_timeline', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ amount: 99, lastTweet: setId }),
+            }).then(response => response.json())
+                .then(data => {
+
+                    // Get area where our tweets will go and clear them
+                    var setTweets = document.getElementById('tweets');
+                    setTweets.innerHTML = '';
+                    let tweetHTML = '<div class="ui items">';
+
+                    // Get the ID of the last tweet
+                    id = data[data.length - 1].id
+
+                    // Iterate over our data
+                    for (let i = 0; i < data.length; i++){
+                        const moment = require('moment')
+
+
+                        String.prototype.parseURL = function() {
+                            return this.replace(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_:%&~\?\/.=]+/g, function( url ) {
+                                return url.link( url )
+                            });
+                        };
+                        String.prototype.parseUsername = function() {
+                            return this.replace(/[@]+[A-Za-z0-9-_]+/g, function( u ) {
+                                var username = u.replace("@","");
+                                return u.link( 'http://twitter.com/' + username );
+                            });
+                        };
+                        String.prototype.parseHashtag = function() {
+                            return this.replace(/[#]+[A-Za-z0-9-_]+/g, function( t ) {
+                                var tag = t.replace("#","");
+                                return t.link( 'https://twitter.com/hashtag/' + tag + '?src=hashtag_click' );
+                            });
+                        };
+
+
+                        if (data[i].retweeted_status === undefined && data[i].is_quote_status === false){
+                            // Normal Tweets
+                            // Parse through data and add links
+                            data[i].full_text = data[i].full_text.parseURL().parseUsername().parseHashtag();
+
+                            tweetHTML += '<div class="item">' +
+                                            '<img class="ui circular left floated image" alt="Test" src=' + data[i].user.profile_image_url + '>' +
+                                            '<div class="content">' +
+                                                '<p class="header" style="padding-right: 5px; color: white">' + data[i].user.name + '</p><p class="header" style="color: #8c8c8c">' + ' @' + data[i].user.screen_name + '</p><p class="header" style="padding: 0px 5px 0px 5px; color: #8c8c8c">' + '· ' + moment(data[i].created_at, 'ddd MMM DD HH:mm:ss Z YYYY').fromNow() + '</p>' +
+                                                '<div class="description" style="color: white">' +
+                                                    '<p>' + data[i].full_text + '</p>' +
+                                                '</div>' +
+                                                '<div class="extra" style="display: flex; justify-content: space-around; padding-top: 5px">' +
+                                                    '<p class="myIcons ui circular">' +
+                                                        '<i class="comment alternate icon"></i>' +
+                                                    '</p>' +
+                                                    '<p class="myIcons ui circular">' +
+                                                        '<i class="retweet icon"></i>' + data[i].retweet_count +
+                                                    '</p>' +
+                                                    '<p class="myIcons ui circular">' +
+                                                        '<i class="heart outline icon"></i>' + data[i].favorite_count +
+                                                    '</p>' +
+                                                    '<p class="myIcons ui circular">' +
+                                                        '<i class="share icon"></i>' +
+                                                    '</p>' +
+                                                '</div>' +
+                                            '</div>' +
+                                        '</div>' +
+                                        '<div class="ui fitted divider"></div>'
+
+
+                        } else if (data[i].is_quote_status === true && data[i].retweeted_status === undefined) {
+                            // Quote Tweets
+                            // Parse through data and add links
+                            data[i].full_text = data[i].full_text.parseURL().parseUsername().parseHashtag();
+
+                            tweetHTML += '<div class="item">' +
+                                            '<img class="ui circular left floated image" alt="Test" src=' + data[i].user.profile_image_url + '>' +
+                                            '<div class="content">' +
+                                                '<p class="header" style="padding-right: 5px; color: white">' + data[i].user.name + '</p><p class="header" style="color: #8c8c8c">' + ' @' + data[i].user.screen_name + '</p><p class="header" style="padding: 0px 5px 0px 5px; color: #8c8c8c">' + '· ' + moment(data[i].created_at, 'ddd MMM DD HH:mm:ss Z YYYY').fromNow() + '</p>' +
+                                                '<div class="description" style="color: white">' +
+                                                '<p>' + data[i].full_text + '</p>' +
+                                                '<div class="ui inverted vertically fitted segment" style="padding: 10px 10px 20px 10px;">' +
+                                                    '<div class="item">' +
+                                                        '<img class="ui circular left floated image" alt="Test" src=' + data[i].quoted_status.user.profile_image_url + '>' +
+                                                        '<div class="content">' +
+                                                            '<a class="header" style="cursor: default; padding-right: 5px; color: white">' + data[i].quoted_status.user.name + '</a><a class="header" style="cursor: default; color: #8c8c8c">' + ' @' + data[i].quoted_status.user.screen_name + '</a><a class="header" style="cursor: default; padding: 0px 5px 0px 5px; color: #8c8c8c">' + '· ' + moment(data[i].quoted_status.created_at, 'ddd MMM DD HH:mm:ss Z YYYY').fromNow() + '</a>' +
+                                                        '<div class="description">' +
+                                                            '<p>' + data[i].quoted_status.full_text + '</p>' +
+                                                        '</div>' +
+                                                        '</div>' +
+                                                    '</div>' +
+                                                '</div>' +
+                                                '</div>' +
+                                                '<div class="extra" style="display: flex; justify-content: space-around; padding-top: 5px">' +
+                                                    '<p class="myIcons ui circular">' +
+                                                        '<i class="comment alternate icon"></i>' +
+                                                    '</p>' +
+                                                    '<p class="myIcons ui circular">' +
+                                                        '<i class="retweet icon"></i>' + data[i].retweet_count +
+                                                    '</p>' +
+                                                    '<p class="myIcons ui circular">' +
+                                                        '<i class="heart outline icon"></i>' + data[i].favorite_count +
+                                                    '</p>' +
+                                                    '<p class="myIcons ui circular">' +
+                                                        '<i class="share icon"></i>' +
+                                                    '</p>' +
+                                                '</div>' +
+                                            '</div>' +
+                                        '</div>' +
+                                        '<div class="ui fitted divider"></div>'
+                        } else {
+                            // Retweeted Tweets
+                            // Parse through data and add links
+                            data[i].retweeted_status.full_text = data[i].retweeted_status.full_text.parseURL().parseUsername().parseHashtag();
+
+                            tweetHTML += '<div class="item">' +
+                                            '<img style="margin-top: 10px" class="ui circular left floated image" alt="Test" src=' + data[i].retweeted_status.user.profile_image_url + '>' +
+                                            '<i class="top left corner retweet icon" style="color: white"></i>' +
+                                            '<div class="content">' +
+                                                '<p style="color: #8c8c8c">' + data[i].user.name + ' retweeted' + '</p>' +
+                                                '<p class="header" style="padding-right: 5px; color: white">' + data[i].retweeted_status.user.name + '</p><p class="header" style="color: #8c8c8c">' + ' @' + data[i].retweeted_status.user.screen_name + '</p><p class="header" style="padding: 0px 5px 0px 5px; color: #8c8c8c">' + '· ' + moment(data[i].retweeted_status.created_at, 'ddd MMM DD HH:mm:ss Z YYYY').fromNow() + '</p>' +
+                                                '<div class="description" style="color: white">' +
+                                                    '<p>' + data[i].retweeted_status.full_text + '</p>' +
+                                                '</div>' +
+                                                '<div class="extra" style="display: flex; justify-content: space-around; padding-top: 5px;">' +
+                                                    '<p class="myIcons ui circular">' +
+                                                        '<i class="comment alternate icon"></i>' +
+                                                    '</p>' +
+                                                    '<p class="myIcons ui circular">' +
+                                                        '<i class="retweet icon"></i>' + data[i].retweeted_status.retweet_count +
+                                                     '</p>' +
+                                                     '<p class="myIcons ui circular">' +
+                                                        '<i class="heart outline icon"></i>' + data[i].retweeted_status.favorite_count +
+                                                     '</p>' +
+                                                     '<p class="myIcons ui circular">' +
+                                                        '<i class="share icon"></i>' +
+                                                     '</p>' +
+                                                '</div>' +
+                                            '</div>' +
+                                        '</div>' +
+                                        '<div class="ui fitted divider"></div>'
+                        }
+                    }
+
+                    // Close the html and add it to our "tweets" div
+                    tweetHTML += '</div>';
+                    var tweetsContainer = document.getElementById('tweets');
+                    tweetsContainer.insertAdjacentHTML("beforebegin", tweetHTML);
+                })}
+
+        // Call the function that will retrieve our tweets (/twitter/home_timeline)
+        getTwitterTimeline()
+    </script>
+</body>
+<% } %>

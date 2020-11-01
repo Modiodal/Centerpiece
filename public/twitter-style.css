@@ -1,0 +1,43 @@
+
+html {
+    margin-left: calc(100vw - 100%);
+}
+
+.myIcons {
+    color: #8c8c8c;
+}
+
+a {
+    cursor: auto;
+    color: #00acee;
+}
+
+a:hover {
+    cursor: auto;
+    color: #00acee;
+}
+
+#profileButton {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+#loadMore {
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+.mainTweets {
+    background-color: #242424;
+}
+
+#backtoTop {
+    position: fixed;
+    bottom: 10%;
+    left: 8%;
+    color: gray;
+}
+
+#backtoTop:hover {
+    cursor: pointer;
+}

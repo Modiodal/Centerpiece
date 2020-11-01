@@ -1,0 +1,77 @@
+{
+  "name": "Centerpiece",
+  "productName": "Centerpiece",
+  "version": "1.0.0",
+  "description": "Centerpiece is an Electron app that combines my most frequented social media sites as well as information like articles from The NewYork Times and recent cryptocurrency data",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "echo \"No linting configured\"",
+    "test": "mocha tests/app.test.js"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Modiodal",
+    "email": "pkpkelly99@gmail.com"
+  },
+  "license": "MIT",
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "Centerpiece"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "@d-fischer/passport-twitch": "^1.0.5",
+    "body-parser": "^1.19.0",
+    "custom-electron-titlebar": "^3.2.4",
+    "dotenv": "^8.2.0",
+    "ejs": "^3.1.5",
+    "electron-squirrel-startup": "^1.0.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "moment": "^2.29.0",
+    "morgan": "^1.10.0",
+    "node-fetch": "^2.6.1",
+    "passport": "^0.4.1",
+    "passport-twitch-new": "0.0.2",
+    "passport-twitter": "^1.0.4",
+    "twit": "^2.2.11"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.53",
+    "@electron-forge/maker-deb": "^6.0.0-beta.53",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.53",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.53",
+    "@electron-forge/maker-zip": "^6.0.0-beta.53",
+    "@treverix/remote": "^0.1.1",
+    "electron": "10.1.1",
+    "mocha": "^8.2.0",
+    "spectron": "^12.0.0",
+    "supertest": "^6.0.0"
+  }
+}
