@@ -22,7 +22,7 @@
 
 
 <p align="center">
-  <img src="screenshots/twitter-signin2.png" alt="Centerpiece Home Page" />
+  <img src="screenshots/twitter-signin.png" alt="Centerpiece Home Page" />
 </p>
 
 ## What I learned
