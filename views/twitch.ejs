@@ -24,14 +24,14 @@
                 unfocusEffect: false
             });
 
-            var twitchSearch = 'monstercat'
+            var twitchSearch = 'monstercat';
             $("#target").click(function () {
                 twitchSearch = $('#twitchInput').val();
                 if (twitchSearch === ""){
                     return
                 }
                 player.setChannel(twitchSearch);
-            })
+            });
 
             function updateCurrentStreamer(newVal){
                 player.setChannel(newVal)
@@ -40,7 +40,7 @@
             const { ipcRenderer } = require('electron');
             $(document).ready(function () {
                 ipcRenderer.send('onTwitchPageLoad')
-            })
+            });
 
             var options = {
                 width: '100%',

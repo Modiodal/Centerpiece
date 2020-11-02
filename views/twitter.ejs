@@ -51,7 +51,7 @@
             if($(window).scrollTop() + $(window).height() >= $(document).height()) {
                 if (!scrolled){
                     scrolled = true;
-                    getTwitterTimeline(id)
+                    getTwitterTimeline(id);
                     setTimeout(function () {scrolled = false}, 5000)
                 }
             }
@@ -72,11 +72,11 @@
                     let tweetHTML = '<div class="ui items">';
 
                     // Get the ID of the last tweet
-                    id = data[data.length - 1].id
+                    id = data[data.length - 1].id;
 
                     // Iterate over our data
                     for (let i = 0; i < data.length; i++){
-                        const moment = require('moment')
+                        const moment = require('moment');
 
 
                         String.prototype.parseURL = function() {

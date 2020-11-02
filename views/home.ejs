@@ -117,19 +117,20 @@
         $("#target").click(function () {
             let weatherSearch = $('#weatherInput').val();
 
-            document.getElementById('weatherInput').value = ''
+            document.getElementById('weatherInput').value = '';
             if (weatherSearch === ""){
                 return
             }
+
             fetch('/home/weather', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ userInput: weatherSearch }),
             }).then(response => response.json())
             .then(data => {
-                document.getElementById('weatherName').innerHTML = data.name
-                document.getElementById('weatherIcon').src = 'http://openweathermap.org/img/wn/' + data.weather[0].icon + '@2x.png'
-                document.getElementById('weatherTemp').innerHTML = 'Temp: ' + data.main.temp + '&deg'
+                document.getElementById('weatherName').innerHTML = data.name;
+                document.getElementById('weatherIcon').src = 'http://openweathermap.org/img/wn/' + data.weather[0].icon + '@2x.png';
+                document.getElementById('weatherTemp').innerHTML = 'Temp: ' + data.main.temp + '&deg';
                 document.getElementById('weatherConitions').innerHTML =
                     'Conditions: ' + data.weather[0].description + '<br> Feels like: ' + data.main.feels_like + '&deg' + '<br> Humidity: ' + data.main.humidity
             })
