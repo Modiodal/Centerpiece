@@ -115,8 +115,8 @@
 
 
         $("#target").click(function () {
-            weatherSearch = $('#weatherInput').val();
-            console.log(weatherSearch)
+            let weatherSearch = $('#weatherInput').val();
+
             document.getElementById('weatherInput').value = ''
             if (weatherSearch === ""){
                 return
