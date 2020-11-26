@@ -27,7 +27,6 @@
 
 ## What I learned
 - Javascript
-
 - Integration testing
     - Wrote tests using Spectron and Mocha.
 - Api Creation && Handling

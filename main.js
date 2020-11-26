@@ -6,9 +6,9 @@ const exec = require('child_process').execFile;
 var execePath = "C:\\Program Files\\Chatterino\\chatterino.exe";
 const { ipcMain } = require('electron');
 require('@treverix/remote/main').initialize();
+require('dotenv').config();
 
-
-
+process.env.NODE_ENV = 'production';
 let mainWindow;
 
 function createWindow () {
